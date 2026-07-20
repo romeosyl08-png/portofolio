@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Développeur Django</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0e17;
+            color: #e0e0e0;
+            scroll-behavior: smooth;
+        }
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(10,14,23,0.95);
+            padding: 20px 50px; z-index: 100;
+            display: flex; justify-content: space-between;
+            backdrop-filter: blur(10px);
+        }
+        nav a { color: #e0e0e0; text-decoration: none; margin-left: 30px; }
+        nav a:hover { color: #00fff2; }
+        .hero {
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+        .hero h1 {
+            font-size: 3em;
+            background: linear-gradient(90deg, #00fff2, #a855f7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        section { padding: 80px 50px; max-width: 1100px; margin: auto; }
+        h2 { font-size: 2em; margin-bottom: 40px; color: #00fff2; }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #131a29; padding: 25px; border-radius: 12px;
+            border: 1px solid #1f2937; cursor: pointer;
+            transition: 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #00fff2; }
+        .card h3 { color: #00fff2; margin-bottom: 10px; }
+        .progress-bar {
+            background: #1f2937; border-radius: 10px; height: 8px; margin-top: 10px;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00fff2, #a855f7);
+            height: 100%; border-radius: 10px;
+        }
+        .btn-more {
+            margin-top: 15px; display: inline-block;
+            color: #a855f7; font-size: 0.9em;
+        }
+
+        /* Modale */
+        .modal {
+            display: none; position: fixed; top:0; left:0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            z-index: 200; justify-content: center; align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #131a29; padding: 40px; border-radius: 12px;
+            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+            border: 1px solid #00fff2;
+        }
+        .modal-close {
+            float: right; cursor: pointer; color: #a855f7; font-size: 1.5em;
+        }
+        .tech-tag {
+            display: inline-block; background: #1f2937; padding: 5px 12px;
+            border-radius: 20px; margin: 4px; font-size: 0.85em;
+        }
+        footer { text-align: center; padding: 30px; color: #555; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <span style="color:#00fff2; font-weight:bold;">MonPortfolio</span>
+    <div>
+        <a href="#about">À propos</a>
+        <a href="#skills">Compétences</a>
+        <a href="#projects">Projets</a>
+        <a href="#contact">Contact</a>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>[Ton Nom]</h1>
+    <p>Développeur Django | Mécatronique | Cybersécurité en devenir</p>
+</div>
+
+<section id="about">
+    <h2>À propos</h2>
+    <p id="about-text">
+        Étudiant en Licence 2 Mécatronique, développeur Django autodidacte et passionné de cybersécurité.
+        Mon objectif : construire des systèmes robustes, sécurisés, et — pourquoi pas — un empire numérique.
+    </p>
+    <span class="btn-more" onclick="document.getElementById('about-text').style.webkitLineClamp='unset'">
+        Voir plus →
+    </span>
+</section>
+
+<section id="skills">
+    <h2>Compétences</h2>
+    <div class="grid">
+        {% for comp in competences %}
+        <div class="card" onclick="openModal('comp-{{ comp.id }}')">
+            <h3>{{ comp.nom }}</h3>
+            <p>{{ comp.description_courte }}</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:{{ comp.niveau }}%;"></div>
+            </div>
+            <span class="btn-more">Voir plus →</span>
+        </div>
+
+        <div class="modal" id="modal-comp-{{ comp.id }}">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('comp-{{ comp.id }}')">&times;</span>
+                <h3>{{ comp.nom }} — {{ comp.niveau }}%</h3>
+                <p>{{ comp.description_longue }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <p>Aucune compétence ajoutée. Direction /admin/, maître.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="projects">
+    <h2>Projets</h2>
+    <div class="grid">
+        {% for projet in projets %}
+        <div class="card" onclick="openModal('proj-{{ projet.id }}')">
+            <h3>{{ projet.titre }}</h3>
+            <p>{{ projet.description_courte }}</p>
+            <span class="btn-more">Voir détails →</span>
+        </div>
+
+        <div class="modal" id="modal-proj-{{ projet.id }}">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal('proj-{{ projet.id }}')">&times;</span>
+                <h3>{{ projet.titre }}</h3>
+                <p>{{ projet.description_longue }}</p>
+                <div style="margin-top:15px;">
+                    {% for tech in projet.get_technologies_list %}
+                    <span class="tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+                <div style="margin-top:20px;">
+                    {% if projet.lien_github %}<a href="{{ projet.lien_github }}" style="color:#00fff2; margin-right:20px;">GitHub</a>{% endif %}
+                    {% if projet.lien_demo %}<a href="{{ projet.lien_demo }}" style="color:#a855f7;">Démo</a>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Aucun projet ajouté. Direction /admin/, maître.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="contact">
+    <h2>Contact</h2>
+    <p>Email : votre@email.com</p>
+    <p>GitHub | LinkedIn — à personnaliser</p>
+</section>
+
+<footer>© 2026 [Ton Nom] — Propulsé par Django & un soupçon d'ambition.</footer>
+
+<script>
+    function openModal(id) {
+        document.getElementById('modal-' + id).classList.add('active');
+    }
+    function closeModal(id) {
+        document.getElementById('modal-' + id).classList.remove('active');
+    }
+    window.onclick = function(e) {
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('active');
+        }
+    }
+</script>
+
+</body>
+</html>
