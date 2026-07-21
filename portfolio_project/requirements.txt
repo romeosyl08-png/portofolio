@@ -1,7 +1,8 @@
 asgiref==3.12.1
 Django==6.0.7
-gunicorn==23.0.0
+env==0.1.0
 pillow==12.3.0
 python-dotenv==1.2.2
 sqlparse==0.5.5
-whitenoise==6.8.2
+psycopg2-binary==2.9.10
+dj-database-url==2.3.0
